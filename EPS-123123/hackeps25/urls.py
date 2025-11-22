@@ -16,14 +16,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import index, accordion, camera , carousel, collapse, dial, dismiss, modal, drawer, dropdown, popover, tabs, tooltip, input_counter, datepicker, base
+from .views import index, accordion, update_pose, get_pose, camera, carousel, collapse, dial, dismiss, modal, drawer, dropdown, popover, tabs, \
+    tooltip, input_counter, datepicker, base
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index, name='index'),
+    path('api/update-pose/', update_pose, name='update_pose'),
+    path('api/get-pose/', get_pose, name='get_pose'),
     path('accordion', accordion, name='accordion'),
     path('carousel', carousel, name='carousel'),
-    path('collapse', collapse, name='collapse'),    
+    path('collapse', collapse, name='collapse'),
     path('dial', dial, name='dial'),
     path('dismiss', dismiss, name='dismiss'),
     path('modal', modal, name='modal'),
