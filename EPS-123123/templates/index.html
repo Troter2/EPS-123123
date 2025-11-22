@@ -1,14 +1,56 @@
 <!-- templates/index.html -->
 
-{% extends "_base.html" %}
+{% extends "base.html" %}
 {% load static %}
 
 {% block content %}
-<div
-  id="three-container"
-  class="w-screen h-screen"
-  data-model-url="{% static 'models/room/scene.glb' %}"
-></div>
+
+
+<!-- Primera taula -->
+<div class="contenedor">
+    <div class="card">
+  <div class="card__title">Caracters</div>
+  <div class="card__data">
+    <div class="card__right">
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+    </div>
+    <div class="card__right">
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+    </div>
+      <div class="card__right">
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+    </div>
+  </div>
+</div>
+    <!-- Segona taula -->
+    <div class="card2">
+  <div class="card__title">Stages</div>
+  <div class="card__data">
+    <div class="card__right">
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+    </div>
+    <div class="card__right">
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+    </div>
+      <div class="card__right">
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+      <div class="item"><img src="../static/src/descarga.jpg"></div>
+    </div>
+  </div>
+</div>
+</div>
+
 {% endblock content %}
 
 {% block extra_js %}

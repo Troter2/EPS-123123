@@ -12,10 +12,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Django + Tailwind CSS + Upside down</title>
         <style>
+
+.contenedor {
+    display: flex;
+}
+
 .card {
-  margin-left: 5%;
-  margin-top: 10%;
-  width: 550px;
   background: rgb(44, 44, 44);
   font-family: "Courier New", Courier, monospace;
   border-top-left-radius: 12px;
@@ -26,9 +28,8 @@
 }
 
 .card2 {
-  margin-left: 50%;
-  margin-top: 10%;
-  width: 550px;
+  margin-right: 20%;
+  margin-left: 10%;
   background: rgb(44, 44, 44);
   font-family: "Courier New", Courier, monospace;
   border-top-left-radius: 12px;
@@ -848,52 +849,10 @@
 
     <!-- Sidebar -->
 
-<!-- Primera taula -->
-<div class="card">
-  <div class="card__title">Caracters</div>
-  <div class="card__data">
-    <div class="card__right">
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-    </div>
-    <div class="card__right">
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-    </div>
-      <div class="card__right">
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-    </div>
-  </div>
-</div>
-    <!-- Segona taula -->
-    <div class="card2">
-  <div class="card__title">Stages</div>
-  <div class="card__data">
-    <div class="card__right">
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-    </div>
-    <div class="card__right">
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-    </div>
-      <div class="card__right">
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-    </div>
-  </div>
-</div>
 
 
 
-    <main class="p-4 md:ml-64 h-auto pt-20">
+    <main class="p-4 md:ml-10 h-auto pt-20">
         {% block content %}
         {% endblock content %}
     </main>

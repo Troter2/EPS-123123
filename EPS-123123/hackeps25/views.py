@@ -53,8 +53,12 @@ def input_counter(request):
 
 def datepicker(request):
     return render(request, 'datepicker.html')
+
 def base(request):
     return render(request, 'base.html')
+
+def registre(request):
+    return render(request, 'registre.html')
 
 
 latest_pose_data = {

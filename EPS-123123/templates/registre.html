@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+
+{% load widget_tweaks %}
+
+
+
+
+<h2>Registrar Persona</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar</button>
+</form>
+
+
+
+
+
+
+
+
+{% endblock content %}
