@@ -1,8 +1,12 @@
 import json
 
 from django.http import JsonResponse
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render, redirect
+from django.contrib.auth.views import LoginView
+from django.contrib import messages
+
+from hackeps25.forms import ContactoForm
 
 
 def index(request):
@@ -98,3 +102,22 @@ def get_pose(request):
     """
     global latest_pose_data
     return JsonResponse(latest_pose_data)
+
+class LoginBootstrapView(LoginView):
+    template_name = 'login.html'
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Usuario o contraseña incorrectos")
+        return super().form_invalid(form)
+
+
+def contacto_view(request):
+    if request.method == 'POST':
+        form = ContactoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('index')  # Cambia a la URL que quieras
+    else:
+        form = ContactoForm()
+
+    return render(request, 'contacto.html', {'form': form})

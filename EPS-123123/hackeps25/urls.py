@@ -16,8 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import index, accordion, update_pose, get_pose, camera, carousel, collapse, dial, dismiss, modal, drawer, dropdown, popover, tabs, \
-    tooltip, input_counter, datepicker, base
+from .views import update_pose, get_pose, index, accordion, camera , carousel, collapse, dial, dismiss, modal, drawer, dropdown, popover, tabs, tooltip, input_counter, datepicker, base
+from .views import LoginBootstrapView
+from django.contrib.auth.views import LogoutView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -39,4 +41,7 @@ urlpatterns = [
     path('input-counter', input_counter, name='input-counter'),
     path('datepicker', datepicker, name='datepicker'),
     path('base', base, name='base'),
+    path('login/', LoginBootstrapView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+
 ]
