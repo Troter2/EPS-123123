@@ -1,0 +1,16 @@
+<!-- templates/index.html -->
+
+{% extends "_base.html" %}
+{% load static %}
+
+{% block content %}
+<div
+  id="three-container"
+  class="w-screen h-screen"
+  data-model-url="{% static 'models/room/scene.glb' %}"
+></div>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static 'src/js/main.js' %}"></script>
+{% endblock extra_js %}
