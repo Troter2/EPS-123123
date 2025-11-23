@@ -19,7 +19,7 @@ from django.urls import path
 from .views import LoginBootstrapView
 from django.contrib.auth.views import LogoutView
 
-from .views import index, accordion, update_pose, update_coords, get_pose, camera, registre, carousel, collapse, dial, \
+from .views import index, accordion, update_pose, update_coords, get_pose, camera, register, carousel, collapse, dial, \
     dismiss, modal, \
     drawer, \
     dropdown, popover, tabs, \
@@ -50,6 +50,7 @@ urlpatterns = [
     path('base', base, name='base'),
     path('login/', LoginBootstrapView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('registre/', registre, name='registre'),
+    path("registre/", register, name="registre"),
+
 
 ]

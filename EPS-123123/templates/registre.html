@@ -1,27 +1,103 @@
+<!-- templates/index.html -->
+
 {% extends "base.html" %}
 
 {% block content %}
 
+<h2>Register</h2>
 
-
-{% load widget_tweaks %}
-
-
-
-
-<h2>Registrar Persona</h2>
-
-<form method="POST">
+<!-- <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Guardar</button>
+
+    <div>
+        <label for="username">Username porfavore</label>
+        <input name="username" id="username"/>
+    </div>
+    <div>
+        <label for="email">email porfavore</label>
+        <input name="email" id="email"/>
+    </div>
+    <div>
+        <label for="password1">password1 porfavore</label>
+        <input name="password1" id="password1"/>
+    </div>
+    <div>
+        <label for="password2">password2 porfavore</label>
+        <input name="password2" id="password2"/>
+    </div>
+
+    <button type="submit">Crear cuenta</button>
+</form> -->
+
+
+
+
+<!-- ------------------------------------------------------ -->
+
+
+<form class="max-w-md mx-auto mt-12 p-8 bg-gradient-to-br from-white/90 to-blue-50 backdrop-blur-md rounded-2xl shadow-2xl" method="post">
+   {% csrf_token %}
+    <p class="text-3xl font-extrabold text-center text-gray-800 mb-2">Register</p>
+    <p class="text-gray-500 text-center mb-8">Signup now and get full access to our app.</p>
+
+
+    <div class="flex flex-col gap-6">
+
+        <div class="relative">
+            <input name="username" id="username"
+                   type="text" placeholder=" " required
+                   class="peer w-full p-4 pl-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-800 font-medium placeholder-transparent transition-all duration-300"/>
+            <label for="username"
+                   class="absolute left-4 top-4 text-gray-400 text-sm peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-1 peer-focus:text-blue-500 peer-focus:text-sm transition-all duration-300">
+                Username
+            </label>
+        </div>
+
+
+        <div class="relative">
+            <input name="email" id="email"
+                   type="email" placeholder=" " required
+                   class="peer w-full p-4 pl-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-800 font-medium placeholder-transparent transition-all duration-300"/>
+            <label for="email"
+                   class="absolute left-4 top-4 text-gray-400 text-sm peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-1 peer-focus:text-blue-500 peer-focus:text-sm transition-all duration-300">
+                Email
+            </label>
+        </div>
+
+
+        <div class="relative">
+            <input name="password1" id="password1"
+                   type="password" placeholder=" " required
+                   class="peer w-full p-4 pl-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-800 font-medium placeholder-transparent transition-all duration-300"/>
+            <label for="password1"
+                   class="absolute left-4 top-4 text-gray-400 text-sm peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-1 peer-focus:text-blue-500 peer-focus:text-sm transition-all duration-300">
+                Password
+            </label>
+        </div>
+
+
+        <div class="relative">
+            <input name="password2" id="password2"
+                   type="password" placeholder=" " required
+                   class="peer w-full p-4 pl-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-800 font-medium placeholder-transparent transition-all duration-300"/>
+            <label for="password2"
+                   class="absolute left-4 top-4 text-gray-400 text-sm peer-placeholder-shown:top-4 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-1 peer-focus:text-blue-500 peer-focus:text-sm transition-all duration-300">
+                Confirm Password
+            </label>
+        </div>
+    </div>
+
+
+    <button type="submit"
+            class="w-full mt-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300">
+        Crear cuenta
+    </button>
+
+
+    <p class="text-center text-gray-500 text-sm mt-4">
+        Already have an account?
+        <a href="{% url 'login' %}" class="text-blue-500 font-semibold hover:underline">Login</a>
+    </p>
 </form>
 
-
-
-
-
-
-
-
-{% endblock content %}
+{% endblock %}

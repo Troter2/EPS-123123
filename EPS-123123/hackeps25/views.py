@@ -1,12 +1,13 @@
 import json
 
+import form
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import render, redirect
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
+from django.contrib.auth import login, authenticate
+from django.shortcuts import render, redirect
 
-from hackeps25.forms import ContactoForm
 
 
 def index(request):
@@ -128,8 +129,6 @@ def base(request):
     return render(request, 'base.html')
 
 
-def registre(request):
-    return render(request, 'registre.html')
 
 
 latest_pose_data = {
@@ -233,13 +232,17 @@ def get_pose(request):
     return JsonResponse(GLOBAL_POSE_DATA)
 
 
-def contacto_view(request):
-    if request.method == 'POST':
-        form = ContactoForm(request.POST)
+
+
+def register(request):
+    from .forms import RegisterForm
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('index')  # Cambia a la URL que quieras
+            messages.success(request, "Account created successfully!")
+            return redirect("login")  # change to your login URL
     else:
-        form = ContactoForm()
+        form = RegisterForm()
 
-    return render(request, 'contacto.html', {'form': form})
+    return render(request, "registre.html", {"form": form})
