@@ -139,29 +139,41 @@ class LoginBootstrapView(LoginView):
 
 GLOBAL_POSE_DATA = {
     "position": {"x": 0, "y": 0},
-    "extremities": {}  # Aquí irían los huesos si los mandaras
+    "state": "normal"  # Por defecto
 }
 
 
-@csrf_exempt  # Necesario para recibir POST sin token desde Python script
+@csrf_exempt
 def update_coords(request):
+    """
+    Recibe datos desde el script de Python (tracking_api.py)
+    """
     global GLOBAL_POSE_DATA
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            # Guardamos 'x' y 'y' en nuestra memoria global
+
+            # 1. Guardar Posición
             GLOBAL_POSE_DATA["position"] = {
                 "x": data.get("x", 0),
                 "y": data.get("y", 0)
             }
-            return JsonResponse({"status": "success"})
+
+            # 2. Guardar Estado (Waving / Normal)
+            # El .get("state", "normal") significa: si no envías nada, pon "normal"
+            GLOBAL_POSE_DATA["state"] = data.get("state", "normal")
+
+            return JsonResponse({"status": "ok"})
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)})
-    return JsonResponse({"status": "invalid method"})
+
+    return JsonResponse({"status": "bad request"})
 
 
 def get_pose(request):
-    # Esta es la que llama el JS
+    """
+    Envía datos al navegador (Three.js)
+    """
     global GLOBAL_POSE_DATA
     return JsonResponse(GLOBAL_POSE_DATA)
 
