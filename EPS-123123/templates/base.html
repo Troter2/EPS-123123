@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Django + Tailwind CSS + Upside down</title>
+    <title>Upside down</title>
     <style>
 
         .contenedor {
@@ -90,7 +90,7 @@
           --burger-line-height: 0.125em;
           --burger-offset: 0.625em;
 
-          /* CHANGED COLOR HERE: Blue #3b82f6 */
+          /* Color: Blue #3b82f6 */
           --burger-bg: #3b82f6;
 
           --burger-color: #333;
@@ -129,7 +129,7 @@
           --nav-button-border-radius: 0.375em;
           --nav-button-font-size: 17px;
 
-          /* CHANGED HOVER COLOR HERE: Blue #3b82f6 */
+          /* Hover Color: Blue #3b82f6 */
           --nav-button-hover-bg: #3b82f6;
 
           --nav-button-hover-text-color: #fff;
@@ -206,7 +206,9 @@
           list-style-type: none;
         }
 
-        .popup-window ul button {
+        /* MODIFIED: Added 'a' selector to maintain button styling on links */
+        .popup-window ul button,
+        .popup-window ul a {
           outline: none;
           width: 100%;
           border: none;
@@ -220,11 +222,12 @@
           border-radius: var(--nav-button-border-radius);
           cursor: pointer;
           column-gap: var(--nav-button-distance);
+          text-decoration: none; /* Removes link underline */
         }
 
         .popup-window ul li:nth-child(1) svg,
         .popup-window ul li:nth-child(2) svg {
-          /* CHANGED ICON COLOR HERE: Blue #3b82f6 */
+          /* Icon Color: Blue #3b82f6 */
           color: #3b82f6;
         }
 
@@ -246,10 +249,15 @@
 
         /* actions */
 
+        /* MODIFIED: Added 'a' selector for hover effects */
         .popup-window ul button:hover,
         .popup-window ul button:focus-visible,
         .popup-window ul button:hover svg,
-        .popup-window ul button:focus-visible svg {
+        .popup-window ul button:focus-visible svg,
+        .popup-window ul a:hover,
+        .popup-window ul a:focus-visible,
+        .popup-window ul a:hover svg,
+        .popup-window ul a:focus-visible svg {
           color: var(--nav-button-hover-text-color);
           background: var(--nav-button-hover-bg);
         }
@@ -973,7 +981,7 @@
                         <legend>Quick Start</legend>
                         <ul>
                             <li>
-                                <button>
+                                <a href="{% url 'login' %}">
                                     <svg
                                             width="14"
                                             height="14"
@@ -989,10 +997,10 @@
                                         ></path>
                                     </svg>
                                     <span>Log In</span>
-                                </button>
+                                </a>
                             </li>
                             <li>
-                                <button>
+                                <a href="{% url 'registre' %}">
                                     <svg
                                             width="14"
                                             height="14"
@@ -1008,7 +1016,7 @@
                                         ></path>
                                     </svg>
                                     <span>Sign Up</span>
-                                </button>
+                                </a>
                             </li>
                         </ul>
                     </nav>
