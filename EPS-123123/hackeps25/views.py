@@ -1,5 +1,5 @@
 import json
-
+from django.contrib.auth.decorators import login_required
 import form
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -9,7 +9,7 @@ from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
 
 
-
+@login_required  # This decorator checks if user is logged in
 def index(request):
     # Si el usuario ha enviado el formulario (ha pulsado el botón "Lock In Selection")
     if request.method == 'POST':
@@ -46,7 +46,7 @@ def accordion(request):
 def carousel(request):
     return render(request, 'carousel.html')
 
-
+@login_required  # This decorator checks if user is logged in
 def camera(request):
     # Inicializamos el contexto vacío o con valores por defecto
     context = {}
@@ -246,3 +246,12 @@ def register(request):
         form = RegisterForm()
 
     return render(request, "registre.html", {"form": form})
+# 1. Update this import line at the top to include 'logout'
+from django.contrib.auth import login, authenticate, logout
+# ... keep your other imports ...
+
+# 2. Add this function at the bottom of your file
+def sign_out(request):
+    logout(request) # This clears the session and logs the user out
+    messages.success(request, "You have been logged out.")
+    return redirect('login') # Redirects back to login page

@@ -129,9 +129,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 COMPRESS_ROOT = BASE_DIR / 'static'
 
 COMPRESS_ENABLED = True
-
+LOGOUT_REDIRECT_URL = 'login'
 STATICFILES_FINDERS = ('compressor.finders.CompressorFinder',)
-
+LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = reverse_lazy('inicio')  # Página tras login
 LOGOUT_REDIRECT_URL = reverse_lazy('login')  # Página tras logout
 

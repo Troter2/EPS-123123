@@ -23,9 +23,10 @@ from .views import index, accordion, update_pose, update_coords, get_pose, camer
     dismiss, modal, \
     drawer, \
     dropdown, popover, tabs, \
-    tooltip, input_counter, datepicker, base, capture_motion_view
+    tooltip, input_counter, datepicker, base, capture_motion_view, sign_out
 
 urlpatterns = [
+    path('logout/', sign_out, name='logout'),
     path('admin/', admin.site.urls),
     path('api/update-coords/', update_coords, name='update_coords'),
     path('api/get-pose/', get_pose, name='get_pose'),

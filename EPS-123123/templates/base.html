@@ -835,7 +835,7 @@
                     </div>
                 </div>
 
-
+                {% if user.is_authenticated %}
                 <div
                         class="hidden z-50 my-4 w-56 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl"
                         id="dropdown"
@@ -843,11 +843,11 @@
                     <div class="py-3 px-4">
               <span
                       class="block text-sm font-semibold text-gray-900 dark:text-white"
-              >Neil Sims</span
+              >{{ user.username }}</span
               >
                         <span
                                 class="block text-sm text-gray-900 truncate dark:text-white"
-                        >name@flowbite.com</span
+                        >{{ user.email }}</span
                         >
                     </div>
                     <ul
@@ -961,6 +961,7 @@
                         </li>
                     </ul>
                 </div>
+                {% endif %}
 
                 <label class="popup ml-3">
                     <input type="checkbox" />
@@ -980,6 +981,24 @@
                     <nav class="popup-window">
                         <legend>Quick Start</legend>
                         <ul>
+                            {% if user.is_authenticated %}
+                            <li>
+                                <a href="#">
+                                    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Welcome, {{ user.username }}</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'logout' %}">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                                    </svg>
+                                    <span>Logout</span>
+                                </a>
+                            </li>
+                            {% else %}
                             <li>
                                 <a href="{% url 'login' %}">
                                     <svg
@@ -1018,6 +1037,7 @@
                                     <span>Sign Up</span>
                                 </a>
                             </li>
+                            {% endif %}
                         </ul>
                     </nav>
                 </label>
