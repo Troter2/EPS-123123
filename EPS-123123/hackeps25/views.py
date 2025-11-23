@@ -10,6 +10,31 @@ from hackeps25.forms import ContactoForm
 
 
 def index(request):
+    # Si el usuario ha enviado el formulario (ha pulsado el botón "Lock In Selection")
+    if request.method == 'POST':
+        # 1. Capturamos los datos del formulario usando los 'name' de los inputs ocultos
+        selected_character = request.POST.get('captain')  # Recibirá: 'the_boss', 'monster', etc.
+        selected_stage = request.POST.get('sidekick')  # Recibirá: 'church', 'disco', etc.
+
+        # 2. (Opcional) Imprimimos en la terminal para comprobar que funciona
+        print(f"--- SELECCIÓN RECIBIDA ---")
+        print(f"Personaje: {selected_character}")
+        print(f"Escenario: {selected_stage}")
+
+        # 3. Guardamos la selección para usarla después (por ejemplo, en la vista del juego)
+        # Usar 'request.session' es la forma correcta de pasar datos entre páginas en Django
+        request.session['player_character'] = selected_character
+        request.session['player_stage'] = selected_stage
+
+        # 4. ¿Qué quieres hacer ahora?
+        # Opción A: Quedarse en la misma página
+        # return render(request, 'index.html')
+
+        # Opción B (Recomendada): Redirigir a la página donde empieza la acción
+        # Asegúrate de que 'capture_motion_view' es el nombre de la URL en tu urls.py
+        # return redirect('capture_motion_view')
+
+    # Si es una visita normal (GET), solo mostramos la página
     return render(request, 'index.html')
 
 
