@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+    <style>
+        #mocap-container {
+            position: relative;
+            width: 100%;
+            height: 85vh;
+            background-color: #e5e7eb; /* GRIS CLARO para distinguir del negro de error */
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .input_video {
+            position: absolute;
+            top: 10px; left: 10px;
+            width: 160px; height: 120px;
+            transform: scaleX(-1);
+            border: 2px solid rgba(0,0,0,0.2);
+            z-index: 10;
+            border-radius: 4px;
+            opacity: 0.6;
+        }
+
+        #status-msg {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-family: sans-serif;
+            z-index: 20;
+        }
+    </style>
+
+    <div id="mocap-container">
+        <div id="status-msg">
+            <h3 style="margin:0 0 10px 0;">Iniciando...</h3>
+            <small>Por favor, acepta la cámara.</small>
+        </div>
+        <video class="input_video"></video>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+
+    <script>
+        const container = document.getElementById('mocap-container');
+        const statusMsg = document.getElementById('status-msg');
+
+        // 1. ESCENA THREE.JS
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xe5e7eb); // Fondo gris claro
+
+        // Añadimos una rejilla para saber si la escena carga aunque falle el modelo
+        const gridHelper = new THREE.GridHelper(10, 10);
+        scene.add(gridHelper);
+        const axesHelper = new THREE.AxesHelper(2);
+        scene.add(axesHelper);
+
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.set(0, 1.5, 4); // Posición estándar
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.target.set(0, 1, 0);
+        controls.enableDamping = true;
+
+        // Luces
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
+        hemiLight.position.set(0, 20, 0);
+        scene.add(hemiLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        dirLight.position.set(5, 10, 7);
+        scene.add(dirLight);
+
+        // 2. CARGA DEL MODELO
+        let characterMesh;
+        let bones = {};
+        const loader = new THREE.GLTFLoader();
+
+        // Mapeo de huesos (Asegúrate que coincidan con tu modelo)
+        const BONE_MAP = {
+            rightShoulder: ['RightArm', 'mixamorigRightArm'],
+            rightElbow:    ['RightForeArm', 'mixamorigRightForeArm'],
+            leftShoulder:  ['LeftArm', 'mixamorigLeftArm'],
+            leftElbow:     ['LeftForeArm', 'mixamorigLeftForeArm']
+        };
+
+        // --- IMPORTANTE: Verifica esta ruta en tu consola del navegador si falla ---
+        const modelPath = "{% static 'models/caracter/personaje.glb' %}";
+        console.log("Intentando cargar modelo desde:", modelPath);
+
+        loader.load(modelPath, (gltf) => {
+            characterMesh = gltf.scene;
+
+            // Ajustes de tamaño y posición
+            characterMesh.scale.set(3, 3, 3);
+            characterMesh.position.set(0, 0, 0);
+
+            characterMesh.traverse((node) => {
+                if (node.isMesh) node.castShadow = true;
+                if (node.isBone) {
+                    // Buscamos los huesos
+                    for (const [key, names] of Object.entries(BONE_MAP)) {
+                        if (names.some(n => node.name.includes(n))) {
+                            bones[key] = node;
+                            console.log("Hueso detectado:", key);
+                        }
+                    }
+                }
+            });
+            scene.add(characterMesh);
+            statusMsg.style.display = 'none'; // Ocultar mensaje de carga
+            console.log("Modelo cargado correctamente.");
+
+        }, undefined, (error) => {
+            console.error("ERROR FATAL CARGANDO MODELO:", error);
+            statusMsg.innerHTML = "<span style='color:red; font-weight:bold;'>Error cargando .glb<br>Revisa la consola (F12)</span>";
+        });
+
+
+        // 3. LÓGICA DE MOVIMIENTO (Matemáticas Manuales)
+        function updateArm(bone, ptParent, ptChild, isLeft) {
+            if (!bone || !ptParent || !ptChild) return;
+
+            let dx = ptChild.x - ptParent.x;
+            let dy = ptChild.y - ptParent.y;
+
+            if (!isLeft) dx = -dx; // Espejo para el brazo derecho
+
+            const angle = Math.atan2(-dy, dx);
+
+            // Ajuste de rotación basado en si es izquierda o derecha
+            const offset = isLeft ? Math.PI/2 : -Math.PI/2;
+            bone.rotation.z = angle + offset;
+
+            bone.rotation.x = 0;
+            bone.rotation.y = 0;
+        }
+
+        // 4. MEDIAPIPE
+        const videoElement = document.querySelector('.input_video');
+
+        function onResults(results) {
+            if (!characterMesh || !results.poseLandmarks) return;
+
+            const lm = results.poseLandmarks;
+
+            // Brazo Izquierdo (Tu izquierda -> Derecha personaje en pantalla)
+            if (bones.rightShoulder) updateArm(bones.rightShoulder, lm[12], lm[14], false); // Hombro Der.
+            if (bones.rightElbow)    updateArm(bones.rightElbow, lm[14], lm[16], false);    // Codo Der.
+
+            // Brazo Derecho (Tu derecha -> Izquierda personaje en pantalla)
+            if (bones.leftShoulder) updateArm(bones.leftShoulder, lm[11], lm[13], true);  // Hombro Izq.
+            if (bones.leftElbow)    updateArm(bones.leftElbow, lm[13], lm[15], true);     // Codo Izq.
+        }
+
+        const holistic = new Holistic({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`});
+        holistic.setOptions({
+            modelComplexity: 1,
+            smoothLandmarks: true,
+            minDetectionConfidence: 0.6,
+            minTrackingConfidence: 0.6
+        });
+        holistic.onResults(onResults);
+
+        const camera_mp = new Camera(videoElement, {
+            onFrame: async () => { await holistic.send({image: videoElement}); },
+            width: 640, height: 480
+        });
+        camera_mp.start();
+
+        // 5. RENDER LOOP
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    </script>
+
+{% endblock content %}

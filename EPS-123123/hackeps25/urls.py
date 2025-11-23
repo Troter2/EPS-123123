@@ -16,18 +16,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import update_pose, get_pose, index, accordion, camera, carousel, collapse, dial, dismiss, modal, drawer, \
-    dropdown, popover, tabs, tooltip, input_counter, datepicker, base, registre
 from .views import LoginBootstrapView
 from django.contrib.auth.views import LogoutView
 
-
-
+from .views import index, accordion, update_pose, update_coords, get_pose, camera, registre, carousel, collapse, dial, \
+    dismiss, modal, \
+    drawer, \
+    dropdown, popover, tabs, \
+    tooltip, input_counter, datepicker, base, capture_motion_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/update-coords/', update_coords, name='update_coords'),
+    path('api/get-pose/', get_pose, name='get_pose'),
     path('', index, name='index'),
     path('api/update-pose/', update_pose, name='update_pose'),
+    path('mocap/', capture_motion_view, name='mocap'),
     path('api/get-pose/', get_pose, name='get_pose'),
     path('accordion', accordion, name='accordion'),
     path('carousel', carousel, name='carousel'),

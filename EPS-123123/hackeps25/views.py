@@ -12,50 +12,66 @@ from hackeps25.forms import ContactoForm
 def index(request):
     return render(request, 'index.html')
 
+
 def accordion(request):
     return render(request, 'accordion.html')
+
 
 def carousel(request):
     return render(request, 'carousel.html')
 
+
 def camera(request):
     return render(request, 'camera.html')
+
 
 def collapse(request):
     return render(request, 'collapse.html')
 
+
 def dial(request):
     return render(request, 'dial.html')
+
 
 def dismiss(request):
     return render(request, 'dismiss.html')
 
+
 def modal(request):
     return render(request, 'modal.html')
+
 
 def drawer(request):
     return render(request, 'drawer.html')
 
+
 def dropdown(request):
     return render(request, 'dropdown.html')
+
 
 def popover(request):
     return render(request, 'popover.html')
 
+
 def tooltip(request):
     return render(request, 'tooltip.html')
+
 
 def tabs(request):
     return render(request, 'tabs.html')
 
+
 def input_counter(request):
     return render(request, 'input-counter.html')
+
 
 def datepicker(request):
     return render(request, 'datepicker.html')
 
+
 def base(request):
     return render(request, 'base.html')
+
 
 def registre(request):
     return render(request, 'registre.html')
@@ -100,6 +116,11 @@ def update_pose(request):
     return JsonResponse({"error": "POST only"}, status=405)
 
 
+def capture_motion_view(request):
+    # Asegúrate de que mocap.html esté en tu carpeta templates
+    return render(request, 'mocap.html')
+
+
 def get_pose(request):
     """
     El Frontend JS consulta esto para mover al personaje.
@@ -107,12 +128,42 @@ def get_pose(request):
     global latest_pose_data
     return JsonResponse(latest_pose_data)
 
+
 class LoginBootstrapView(LoginView):
     template_name = 'login.html'
 
     def form_invalid(self, form):
         messages.error(self.request, "Usuario o contraseña incorrectos")
         return super().form_invalid(form)
+
+
+GLOBAL_POSE_DATA = {
+    "position": {"x": 0, "y": 0},
+    "extremities": {}  # Aquí irían los huesos si los mandaras
+}
+
+
+@csrf_exempt  # Necesario para recibir POST sin token desde Python script
+def update_coords(request):
+    global GLOBAL_POSE_DATA
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            # Guardamos 'x' y 'y' en nuestra memoria global
+            GLOBAL_POSE_DATA["position"] = {
+                "x": data.get("x", 0),
+                "y": data.get("y", 0)
+            }
+            return JsonResponse({"status": "success"})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)})
+    return JsonResponse({"status": "invalid method"})
+
+
+def get_pose(request):
+    # Esta es la que llama el JS
+    global GLOBAL_POSE_DATA
+    return JsonResponse(GLOBAL_POSE_DATA)
 
 
 def contacto_view(request):

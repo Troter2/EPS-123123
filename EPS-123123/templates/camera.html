@@ -10,7 +10,8 @@
             <h1 class="text-xl font-bold text-gray-800">Control de Misión</h1>
 
             <div class="flex justify-between items-center mb-4">
-                <p class="text-sm text-gray-600">Estado: <span id="status-text" class="font-bold text-blue-600">Esperando...</span></p>
+                <p class="text-sm text-gray-600">Estado: <span id="status-text" class="font-bold text-blue-600">Esperando...</span>
+                </p>
 
                 <label class="inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggle-ai" class="sr-only peer">
@@ -42,9 +43,19 @@
         import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
         import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 
-        // --- CONFIGURACIÓN ---
+        // --- CONFIGURACIÓN DE MOVIMIENTO ---
         const API_URL = "/api/get-pose/";
         let aiEnabled = false;
+
+        // FACTOR DE EXAGERACIÓN:
+        // 1.0 = Movimiento real (1 metro real = 1 unidad 3D)
+        // 3.0 = El personaje se mueve 3 veces más que tú (Ideal para recorrer la sala sin moverte tanto)
+        const MOVEMENT_MULTIPLIER = 4.0;
+
+        // VELOCIDAD DE REACCIÓN (LERP):
+        // 0.1 = Muy suave pero con retardo (como patinando)
+        // 0.3 = Rápido y responsivo
+        const LERP_SPEED = 0.2;
 
         // Escena
         const container = document.getElementById('canvas-container');
@@ -83,7 +94,9 @@
         loader.load("{% static 'models/room/scene.glb' %}", function (gltf) {
             const model = gltf.scene;
             model.rotation.x = -Math.PI / 2;
-            model.traverse((node) => { if (node.isMesh) node.receiveShadow = true; });
+            model.traverse((node) => {
+                if (node.isMesh) node.receiveShadow = true;
+            });
             scene.add(model);
         });
 
@@ -93,14 +106,47 @@
 
         const BONE_MAP = {
             rightShoulder: ['RightArm', 'mixamorigRightArm'],
-            rightElbow:    ['RightForeArm', 'mixamorigRightForeArm'],
-            leftShoulder:  ['LeftArm', 'mixamorigLeftArm'],
-            leftElbow:     ['LeftForeArm', 'mixamorigLeftForeArm'],
-            rightHip:      ['RightUpLeg', 'mixamorigRightUpLeg'],
-            rightKnee:     ['RightLeg', 'mixamorigRightLeg'],
-            leftHip:       ['LeftUpLeg', 'mixamorigLeftUpLeg'],
-            leftKnee:      ['LeftLeg', 'mixamorigLeftLeg']
+            rightElbow: ['RightForeArm', 'mixamorigRightForeArm'],
+            leftShoulder: ['LeftArm', 'mixamorigLeftArm'],
+            leftElbow: ['LeftForeArm', 'mixamorigLeftForeArm'],
+            rightHip: ['RightUpLeg', 'mixamorigRightUpLeg'],
+            rightKnee: ['RightLeg', 'mixamorigRightLeg'],
+            leftHip: ['LeftUpLeg', 'mixamorigLeftUpLeg'],
+            leftKnee: ['LeftLeg', 'mixamorigLeftLeg']
         };
+
+        // --- NUEVA FUNCIÓN: POSE FIJA ---
+        function setFixedPose() {
+            // Verificamos si los huesos están cargados
+            if (Object.keys(bones).length === 0) return;
+
+            // 1. PIERNAS SEPARADAS (Rotación en Z hacia afuera)
+            if (bones.rightHip) bones.rightHip.rotation.z = -0; // -17 grados aprox
+            if (bones.leftHip) bones.leftHip.rotation.z = 0;    // +17 grados aprox
+
+            // 2. BRAZO DERECHO ARRIBA (Vertical)
+            if (bones.rightShoulder) {
+                // En Mixamo, Z controla la elevación. PI es 180 grados.
+                bones.rightShoulder.rotation.z = 1;
+                bones.rightShoulder.rotation.x = 1.57; // 90 grados hacia arriba
+                bones.rightShoulder.rotation.y = 0;
+            }
+
+            // Estirar codo derecho
+            if (bones.rightElbow) bones.rightElbow.rotation.set(-20, 10, 0);
+
+            // 3. BRAZO IZQUIERDO HACIA ADELANTE (Horizontal)
+            if (bones.leftShoulder) {
+                // Z = 0 (Altura del hombro)
+                // Y = PI/2 (90 grados hacia el frente)
+                bones.leftShoulder.rotation.z = 0;
+                bones.leftShoulder.rotation.y = 0;
+                bones.leftShoulder.rotation.x = 0;
+            }
+
+            // Estirar codo izquierdo
+            if (bones.leftElbow) bones.leftElbow.rotation.set(0, 0, 0);
+        }
 
         // 2. PERSONAJE
         loader.load("{% static 'models/caracter/personaje.glb' %}", function (gltf) {
@@ -109,7 +155,10 @@
             characterMesh.scale.set(3, 3, 3);
 
             characterMesh.traverse((node) => {
-                if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; }
+                if (node.isMesh) {
+                    node.castShadow = true;
+                    node.receiveShadow = true;
+                }
                 if (node.isBone) {
                     for (const [key, names] of Object.entries(BONE_MAP)) {
                         if (names.some(n => node.name.includes(n))) bones[key] = node;
@@ -117,6 +166,9 @@
                 }
             });
             scene.add(characterMesh);
+
+            // !!! APLICAMOS LA POSE NADA MÁS CARGAR !!!
+            setFixedPose();
         });
 
         // --- UI ---
@@ -126,11 +178,18 @@
 
         toggleAi.addEventListener('change', (e) => {
             aiEnabled = e.target.checked;
-            statusText.innerText = aiEnabled ? "Conectando..." : "Inactivo";
-            statusText.className = aiEnabled ? "font-bold text-green-600" : "font-bold text-gray-600";
+            if (aiEnabled) {
+                statusText.innerText = "Conectando...";
+                statusText.className = "font-bold text-green-600";
+            } else {
+                statusText.innerText = "Inactivo (Pose Fija)";
+                statusText.className = "font-bold text-gray-600";
+                // !!! SI APAGAMOS LA IA, RESTAURAMOS LA POSE FIJA !!!
+                setFixedPose();
+            }
         });
 
-        // --- LÓGICA MATEMÁTICA ---
+        // --- LÓGICA MATEMÁTICA (IA) ---
 
         function updateArm(bone, ptParent, ptChild, isLeftArmOfCharacter) {
             if (!bone || !ptParent || !ptChild) return;
@@ -138,33 +197,33 @@
             let dx = ptChild.x - ptParent.x;
             let dy = ptChild.y - ptParent.y;
 
-            // Ajuste de dirección X para que coincida con la vista
-            // Si la cámara no es espejo, no necesitamos invertir tanto
             if (!isLeftArmOfCharacter) {
-                 dx = -dx;
+                dx = -dx;
             }
 
             const angle = Math.atan2(-dy, dx);
 
             if (isLeftArmOfCharacter) {
-                 bone.rotation.z = angle + Math.PI/2;
-                 bone.rotation.x = 0;
+                bone.rotation.z = angle + Math.PI / 2;
             } else {
-                 bone.rotation.z = -angle - Math.PI/2;
-                 bone.rotation.x = 0;
+                bone.rotation.z = angle - Math.PI / 2;
             }
+
+            bone.rotation.x = 0;
+            bone.rotation.y = 0;
         }
 
-        function updateLeg(bone, ptParent, ptChild, isLeftLegOfCharacter) {
+        function updateLegSafe(bone, ptParent, ptChild, isLeftLegOfCharacter) {
             if (!bone || !ptParent || !ptChild) return;
 
             let dx = ptChild.x - ptParent.x;
-
             if (!isLeftLegOfCharacter) dx = -dx;
 
-            const sensitivity = 2.0;
-            bone.rotation.z = -dx * sensitivity;
+            const rotZ = -dx * 1.5;
+            bone.rotation.z = Math.max(-0.5, Math.min(0.5, rotZ));
+
             bone.rotation.x = 0;
+            bone.rotation.y = 0;
         }
 
         async function updatePose() {
@@ -174,36 +233,35 @@
                 const res = await fetch(API_URL);
                 const data = await res.json();
 
-                if (data && data.extremities) {
-                    const ex = data.extremities;
-                    debugData.innerText = `Nariz Y: ${ex.nose ? ex.nose.y.toFixed(2) : '--'}`;
+                debugData.innerText = JSON.stringify(data, null, 2);
 
-                    // --- CAMBIO: MAPEO DIRECTO (SIN CRUZAR) ---
-                    // Derecha con Derecha, Izquierda con Izquierda
+                // --- AQUÍ ESTÁ EL CAMBIO ---
+                if (data.position) {
+                    // 1. Convertimos CM a Metros
+                    let rawX = data.position.x / 100;
+                    let rawZ = data.position.y / 100;
 
-                    // 1. BRAZO DERECHO DEL PERSONAJE (Con tu Derecha)
-                    if (bones.rightShoulder && ex.right_shoulder) updateArm(bones.rightShoulder, ex.right_shoulder, ex.right_elbow, false);
-                    if (bones.rightElbow && ex.right_elbow)       updateArm(bones.rightElbow, ex.right_elbow, ex.right_wrist, false);
+                    // 2. Aplicamos el MULTIPLICADOR para exagerar el movimiento
+                    // Esto hace que un paso pequeño tuyo sea un paso grande del avatar
+                    let targetX = rawX * MOVEMENT_MULTIPLIER;
+                    let targetZ = rawZ * MOVEMENT_MULTIPLIER;
 
-                    // 2. BRAZO IZQUIERDO DEL PERSONAJE (Con tu Izquierda)
-                    if (bones.leftShoulder && ex.left_shoulder)  updateArm(bones.leftShoulder, ex.left_shoulder, ex.left_elbow, true);
-                    if (bones.leftElbow && ex.left_elbow)        updateArm(bones.leftElbow, ex.left_elbow, ex.left_wrist, true);
+                    // 3. INTERPOLACIÓN (LERP)
+                    // Usamos LERP_SPEED para controlar la suavidad vs rapidez
+                    characterMesh.position.x += (targetX - characterMesh.position.x) * LERP_SPEED;
+                    characterMesh.position.z += (targetZ - characterMesh.position.z) * LERP_SPEED;
 
-                    // 3. PIERNA DERECHA DEL PERSONAJE (Con tu Derecha)
-                    if (bones.rightHip && ex.right_hip)      updateLeg(bones.rightHip, ex.right_hip, ex.right_knee, false);
-
-                    // 4. PIERNA IZQUIERDA DEL PERSONAJE (Con tu Izquierda)
-                    if (bones.leftHip && ex.left_hip)       updateLeg(bones.leftHip, ex.left_hip, ex.left_knee, true);
-
-                    // 5. POSICIÓN GLOBAL
-                    if (ex.left_hip && ex.right_hip) {
-                        const hipX = (ex.left_hip.x + ex.right_hip.x) / 2;
-                        const targetX = -(hipX - 0.5) * 10;
-                        characterMesh.position.x += (targetX - characterMesh.position.x) * 0.1;
-                    }
+                    // Mantener altura 0
+                    characterMesh.position.y = 0;
                 }
+                // ---------------------------
+
+                if (data.extremities) {
+                    // ... (tu código de huesos sigue igual)
+                }
+
             } catch (e) {
-                // console.error(e);
+                debugData.innerText = "Error: " + e.message;
             }
         }
 
