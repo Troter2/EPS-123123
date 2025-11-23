@@ -8,8 +8,7 @@
 
         <div class="absolute top-4 left-4 p-4 bg-white/90 rounded-lg shadow-lg backdrop-blur-sm z-10 w-80">
             <h1 class="text-xl font-bold text-gray-800">Control de Misión</h1>
-            <div class="flex justify-between items-center mb-4">
-                <p class="text-sm text-gray-600">Estado: <span id="status-text" class="font-bold text-blue-600">Esperando...</span>
+            <div class="flex justify-between items-center"> <p class="text-sm text-gray-600">Estado: <span id="status-text" class="font-bold text-blue-600">Esperando...</span>
                 </p>
                 <label class="inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggle-ai" class="sr-only peer">
@@ -17,7 +16,7 @@
                     <span class="ms-3 text-sm font-medium text-gray-900">Activar AI</span>
                 </label>
             </div>
-        </div>
+            </div>
     </div>
 
     <script type="importmap">
@@ -40,7 +39,7 @@
 
         const MOVEMENT_MULTIPLIER = 4.0;
         const LERP_SPEED = 0.1;
-        const WALKING_THRESHOLD = 1;
+        const WALKING_THRESHOLD = 0.8;
 
         // Escena
         const container = document.getElementById('canvas-container');
@@ -209,7 +208,7 @@
         // --- UI ---
         const toggleAi = document.getElementById('toggle-ai');
         const statusText = document.getElementById('status-text');
-        const debugData = document.getElementById('debug-data');
+        // ELIMINADO: const debugData = document.getElementById('debug-data');
 
         toggleAi.addEventListener('change', (e) => {
             aiEnabled = e.target.checked;
@@ -226,11 +225,10 @@
                 const res = await fetch(API_URL);
                 const data = await res.json();
 
-                // --- NUEVO LOG ---
+                // Mantenemos el log en la consola del navegador (F12) por si necesitas depurar
                 console.log("📡 API Response:", data);
-                // ----------------
 
-                debugData.innerText = JSON.stringify(data, null, 2);
+                // ELIMINADO: debugData.innerText = ...
 
                 if (data.position) {
                     let rawX = data.position.x / 100;
@@ -245,7 +243,8 @@
                 }
 
             } catch (e) {
-                debugData.innerText = "Error: " + e.message;
+                // Si falla, solo lo mostramos en la consola
+                console.error("Error updatePose:", e);
             }
         }
 
