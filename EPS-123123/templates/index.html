@@ -104,7 +104,7 @@
   }
 </style>
 
-<form method="POST" action="">
+<form method="POST" action="{% url 'camera' %}">
   {% csrf_token %}
   <input type="hidden" id="input_row_1" name="captain" value="">
   <input type="hidden" id="input_row_2" name="sidekick" value="">

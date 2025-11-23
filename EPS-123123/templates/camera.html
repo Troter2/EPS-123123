@@ -40,7 +40,7 @@
 
         const MOVEMENT_MULTIPLIER = 4.0;
         const LERP_SPEED = 0.1;
-        const WALKING_THRESHOLD = 1;
+        const WALKING_THRESHOLD = 1.5;
 
         // Escena
         const container = document.getElementById('canvas-container');
@@ -103,9 +103,10 @@
         const loader = new GLTFLoader();
         let characterMesh;
 
-        // 1. ROOM (ESCENARIO)
-        const roomConfigUrl = "{% static 'models/room/disco_config.json' %}";
-        const roomModelUrl = "{% static 'models/room/disco.glb' %}";
+        // 1. ROOM (ESCENARIO - DINÁMICO)
+        // Usamos la variable selected_stage
+        const roomConfigUrl = "{% static 'models/room/' %}{{ selected_stage }}_config.json";
+        const roomModelUrl = "{% static 'models/room/' %}{{ selected_stage }}.glb";
 
         async function loadRoom() {
             try {
@@ -141,12 +142,12 @@
                     });
 
                     scene.add(model);
-                    console.log("--- ESCENARIO Y BACKGROUND CARGADOS ---");
+                    console.log("--- ESCENARIO {{ selected_stage }} CARGADO ---");
                 });
 
             } catch (error) {
                 console.error("Error cargando config:", error);
-                // Fallback: Carga básica si falla el JSON
+                // Fallback: Carga básica si falla el JSON (Intenta cargar el modelo sin config)
                 loader.load(roomModelUrl, function (gltf) {
                     const model = gltf.scene;
                     model.scale.set(3, 3, 3);
@@ -159,9 +160,12 @@
         // Ejecutar la carga
         loadRoom();
 
-        // 2. PERSONAJE
-        loader.load("{% static 'models/caracter/monster/idle.glb' %}", function (gltf) {
-            console.log("--- PERSONAJE CARGADO ---");
+        // 2. PERSONAJE (DINÁMICO)
+        // Usamos la variable selected_character
+        const characterBaseUrl = "{% static 'models/caracter/' %}{{ selected_character }}/";
+
+        loader.load(characterBaseUrl + "idle.glb", function (gltf) {
+            console.log("--- PERSONAJE {{ selected_character }} CARGADO ---");
             characterMesh = gltf.scene;
 
             characterMesh.position.set(0, 0, 0);
@@ -187,7 +191,7 @@
             }
 
             // 2.2 ANIMACIÓN: WALKING
-            loader.load("{% static 'models/caracter/monster/walking.glb' %}", function (animGltf) {
+            loader.load(characterBaseUrl + "walking.glb", function (animGltf) {
                 if (animGltf.animations.length > 0) {
                     const clip = animGltf.animations[0];
                     const action = mixer.clipAction(clip);
@@ -195,8 +199,8 @@
                 }
             });
 
-            // 2.3 ANIMACIÓN: WAVING (NUEVA)
-            loader.load("{% static 'models/caracter/monster/waving.glb' %}", function (animGltf) {
+            // 2.3 ANIMACIÓN: WAVING
+            loader.load(characterBaseUrl + "waving.glb", function (animGltf) {
                 if (animGltf.animations.length > 0) {
                     console.log("Animación Waving cargada");
                     const clip = animGltf.animations[0];
@@ -209,7 +213,9 @@
         // --- UI ---
         const toggleAi = document.getElementById('toggle-ai');
         const statusText = document.getElementById('status-text');
-        const debugData = document.getElementById('debug-data');
+
+        // ELIMINADO: debug-data no existe en el HTML, lo comentamos para evitar errores
+        // const debugData = document.getElementById('debug-data');
 
         toggleAi.addEventListener('change', (e) => {
             aiEnabled = e.target.checked;
@@ -226,11 +232,10 @@
                 const res = await fetch(API_URL);
                 const data = await res.json();
 
-                // --- NUEVO LOG ---
                 console.log("📡 API Response:", data);
-                // ----------------
 
-                debugData.innerText = JSON.stringify(data, null, 2);
+                // ELIMINADO para evitar crash:
+                // debugData.innerText = JSON.stringify(data, null, 2);
 
                 if (data.position) {
                     let rawX = data.position.x / 100;
@@ -245,7 +250,9 @@
                 }
 
             } catch (e) {
-                debugData.innerText = "Error: " + e.message;
+                console.error(e);
+                // ELIMINADO para evitar crash:
+                // debugData.innerText = "Error: " + e.message;
             }
         }
 

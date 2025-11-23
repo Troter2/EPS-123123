@@ -47,7 +47,37 @@ def carousel(request):
 
 
 def camera(request):
-    return render(request, 'camera.html')
+    # Inicializamos el contexto vacío o con valores por defecto
+    context = {}
+
+    # Si recibimos el formulario desde index.html
+    if request.method == 'POST':
+        selected_character = request.POST.get('captain')
+        selected_stage = request.POST.get('sidekick')
+
+        print(f"--- DATOS RECIBIDOS EN CAMERA ---")
+        print(f"Personaje: {selected_character}")
+        print(f"Escenario: {selected_stage}")
+
+        # Guardamos en sesión (opcional, pero útil si recargas la página)
+        request.session['player_character'] = selected_character
+        request.session['player_stage'] = selected_stage
+
+        # Preparamos los datos para enviarlos al HTML 'camera.html'
+        context = {
+            'selected_character': selected_character,
+            'selected_stage': selected_stage
+        }
+
+    # Si entran directo por GET, intentamos recuperar de la sesión (opcional)
+    else:
+        context = {
+            'selected_character': request.session.get('player_character'),
+            'selected_stage': request.session.get('player_stage')
+        }
+
+    # Renderizamos pasando el contexto
+    return render(request, 'camera.html', context)
 
 
 def collapse(request):
