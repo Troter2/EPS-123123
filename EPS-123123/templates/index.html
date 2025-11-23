@@ -1,58 +1,148 @@
-<!-- templates/index.html -->
-
 {% extends "base.html" %}
 {% load static %}
 
 {% block content %}
+<style>
+  /* --- Layout Styles --- */
+  .section-title {
+    color: white;
+    text-align: center; /* Centered titles look better with centered button */
+    margin-top: 30px;
+    font-family: sans-serif;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  }
 
+  .scrolling-wrapper {
+    overflow: auto;
+    display: flex;
+    scroll-snap-type: x mandatory;
+    width: 90%;
+    margin: 0 auto 20px auto;
+    padding: 20px 15px;
+  }
 
-<!-- Primera taula -->
-<div class="contenedor">
-    <div class="card">
-  <div class="card__title">Caracters</div>
-  <div class="card__data">
-    <div class="card__right">
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
+  /* --- CARD STYLES (Same as before) --- */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    border-radius: 10px;
+    padding: 2rem;
+    margin: 0 1rem;
+    flex-shrink: 0;
+    width: 300px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 3px solid transparent;
+  }
+
+  .scrolling-wrapper:hover > :not(:hover) {
+    opacity: 0.4;
+  }
+
+  .glass-card.selected {
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 0 25px 5px rgba(255, 255, 255, 0.7);
+    border: 3px solid #00d2ff;
+    transform: scale(1.05) translateY(-5px);
+    opacity: 1 !important;
+    z-index: 10;
+  }
+
+  .card-title {
+    width: 100%;
+    text-align: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: #1a1a1a;
+    margin: 0;
+  }
+
+  /* --- SUBMIT BUTTON STYLES --- */
+  .submit-btn {
+    display: block;           /* Allows margin auto to work */
+    margin: 40px auto 60px;   /* Top, Auto(center), Bottom */
+    padding: 15px 50px;
+
+    /* Glass Effect */
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 30px;
+
+    /* Text */
+    color: white;
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .submit-btn:hover {
+    background: #00d2ff;      /* Cyan background on hover */
+    border-color: #00d2ff;
+    color: #000;              /* Black text */
+    box-shadow: 0 0 30px #00d2ff; /* Glowing effect */
+    transform: scale(1.1);    /* Grow slightly */
+  }
+</style>
+
+<form method="POST" action="">
+  {% csrf_token %}
+
+  <input type="hidden" id="input_row_1" name="captain" value="">
+  <input type="hidden" id="input_row_2" name="sidekick" value="">
+
+  <h2 class="section-title">Select Captain</h2>
+  <div class="scrolling-wrapper">
+    <div class="glass-card" onclick="selectCard(this, 'Rick', 'input_row_1')">
+      <p class="card-title">Rick Sanchez</p>
     </div>
-    <div class="card__right">
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
+    <div class="glass-card" onclick="selectCard(this, 'Morty', 'input_row_1')">
+      <p class="card-title">Morty Smith</p>
     </div>
-      <div class="card__right">
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
+    <div class="glass-card" onclick="selectCard(this, 'Birdperson', 'input_row_1')">
+      <p class="card-title">Birdperson</p>
     </div>
   </div>
-</div>
-    <!-- Segona taula -->
-    <div class="card2">
-  <div class="card__title">Stages</div>
-  <div class="card__data">
-    <div class="card__right">
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
+
+  <h2 class="section-title">Select Sidekick</h2>
+  <div class="scrolling-wrapper">
+    <div class="glass-card" onclick="selectCard(this, 'Summer', 'input_row_2')">
+      <p class="card-title">Summer Smith</p>
     </div>
-    <div class="card__right">
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
+    <div class="glass-card" onclick="selectCard(this, 'Beth', 'input_row_2')">
+      <p class="card-title">Beth Smith</p>
     </div>
-      <div class="card__right">
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
-      <div class="item"><img src="../static/src/descarga.jpg"></div>
+    <div class="glass-card" onclick="selectCard(this, 'Jerry', 'input_row_2')">
+      <p class="card-title">Jerry Smith</p>
     </div>
   </div>
-</div>
-</div>
 
-{% endblock content %}
+  <button type="submit" class="submit-btn">
+    Lock In Selection
+  </button>
 
-{% block extra_js %}
-<script src="{% static 'src/js/main.js' %}"></script>
-{% endblock extra_js %}
+</form>
+
+<script>
+  function selectCard(clickedCard, value, inputId) {
+    const rowContainer = clickedCard.parentElement;
+
+    // Clear siblings
+    rowContainer.querySelectorAll('.glass-card').forEach(card => {
+      card.classList.remove('selected');
+    });
+
+    // Select clicked
+    clickedCard.classList.add('selected');
+
+    // Update input
+    document.getElementById(inputId).value = value;
+  }
+</script>
+
+{% endblock %}
